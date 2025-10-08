@@ -7,7 +7,8 @@ export type TradeType = "לונג 🟢" | "שורט 🔴";
 export type TradeResult = "TP ✅" | "SL ❌";
 
 export interface Trade {
-  id: string;
+  _id?: string; // MongoDB-generated ID
+  userId: string; // to associate the trade with the user
   date: string;
   session: Session;
   pair: Pair;
@@ -19,7 +20,8 @@ export interface Trade {
   rr?: string;
   result: TradeResult;
   notes?: string;
-  screenshotUrl?: string;
+  screenshotUrl?: string; // Cloudinary image URL
+  screenshotId?: string; // Cloudinary public_id (for deletion)
+  createdAt?: string;
+  updatedAt?: string;
 }
-
-

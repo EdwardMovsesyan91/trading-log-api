@@ -19,5 +19,3 @@ export const tradesStore = {
 };
 
 export default tradesStore;
-
-
