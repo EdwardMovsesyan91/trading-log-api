@@ -8,10 +8,7 @@ import {
 } from "../validation/tradeSchemas.js";
 import { Trade } from "../types/trade.js";
 import crypto from "crypto";
-import {
-  createDeleteSignature,
-  extractPublicIdFromUrl,
-} from "../utils/extractPublicIdFromUrl.js";
+import { createDeleteSignature } from "../utils/extractPublicIdFromUrl.js";
 
 export async function listTrades(_req: Request, res: Response) {
   const items = await tradesRepository.list();
@@ -44,7 +41,7 @@ export async function updateTrade(req: Request, res: Response) {
   res.json(updated);
 }
 
-export async function deleteTrade(req, res) {
+export async function deleteTrade(req: any, res: any) {
   const id = req.params.id;
 
   const trade = await tradesRepository.get(id);

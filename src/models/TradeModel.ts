@@ -24,5 +24,3 @@ export const TradeModel =
   mongoose.models.Trade || mongoose.model<Trade>("Trade", tradeSchema);
 
 export default TradeModel;
-
-

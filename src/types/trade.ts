@@ -8,7 +8,7 @@ export type TradeResult = "TP ✅" | "SL ❌";
 
 export interface Trade {
   _id?: string; // MongoDB-generated ID
-  userId: string; // to associate the trade with the user
+  id: string; // to associate the trade with the user
   date: string;
   session: Session;
   pair: Pair;

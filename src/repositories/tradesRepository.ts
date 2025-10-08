@@ -11,7 +11,7 @@ export const tradesRepository = {
   async list(): Promise<Trade[]> {
     if (dbReady()) {
       const docs = await TradeModel.find().lean();
-      return docs as Trade[];
+      return docs as any;
     }
     return tradesStore.list();
   },
@@ -42,5 +42,3 @@ export const tradesRepository = {
 };
 
 export default tradesRepository;
-
-
