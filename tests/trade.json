@@ -1,0 +1,17 @@
+{
+  "date": "2025-10-06",
+  "session": "לונדון",
+  "pair": "EUR-USD",
+  "trendMain": "מגמת עליות",
+  "trendSecondary": "מגמת ירידות",
+  "tfBlock": "1H",
+  "tfEntry": "5m",
+  "tradeType": "לונג 🟢",
+  "result": "TP ✅",
+  "rr": "1:2",
+  "notes": "mongo test",
+  "screenshotUrl": "https://example.com/img.png"
+}
+
+
+
