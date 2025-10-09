@@ -30,14 +30,68 @@ export async function createTrade(req: Request, res: Response) {
   res.status(201).json(trade);
 }
 
+/** Extract Cloudinary public_id from a secure URL, e.g. ".../upload/v123/trades/abcd123.webp" -> "trades/abcd123" */
+function extractPublicIdFromUrl(url?: string | null) {
+  if (!url) return null;
+  const match = url.match(/\/upload\/(?:v\d+\/)?([^/.]+\/[^/.]+)\.\w+$/);
+  return match ? match[1] : null;
+}
+
 export async function updateTrade(req: Request, res: Response) {
   const existing = await tradesRepository.get(req.params.id);
   if (!existing) {
     throw createHttpError(404, "Trade not found");
   }
+
+  // Validate incoming updates
   const updates = updateTradeSchema.parse(req.body);
-  const updated: Trade = { ...existing, ...updates };
+
+  // Identify old and new Cloudinary public_ids
+  const oldPublicId =
+    existing.screenshotId || extractPublicIdFromUrl(existing.screenshotUrl);
+
+  const newPublicIdCandidate =
+    (typeof updates.screenshotId === "string" && updates.screenshotId.trim()) ||
+    extractPublicIdFromUrl(updates.screenshotUrl) ||
+    null;
+
+  // Merge record (optionally stamp updatedAt if you keep it)
+  const updated: Trade = {
+    ...existing,
+    ...updates,
+    screenshotId: newPublicIdCandidate ?? existing.screenshotId,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Persist first (never lose the new values if cleanup fails)
   await tradesRepository.upsert(updated);
+
+  // If the image changed, delete the previous Cloudinary asset (best-effort)
+  const shouldDeleteOld =
+    oldPublicId && newPublicIdCandidate && oldPublicId !== newPublicIdCandidate;
+
+  if (shouldDeleteOld) {
+    try {
+      const { signature, timestamp } = createDeleteSignature(oldPublicId);
+      const form = new URLSearchParams();
+      form.append("public_id", oldPublicId);
+      form.append("timestamp", String(timestamp));
+      form.append("api_key", process.env.CLOUDINARY_API_KEY!);
+      form.append("signature", signature);
+
+      await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/destroy`,
+        {
+          method: "POST",
+          body: form,
+        }
+      );
+    } catch (err) {
+      // Don’t fail the update just because cleanup failed
+      console.warn("Cloudinary delete (old image) failed:", err);
+    }
+  }
+
   res.json(updated);
 }
 
